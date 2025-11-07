@@ -49,6 +49,7 @@ namespace API_Fil_Rouge.DataAccessLayer.Interface
         Task<bool> DeleteCategorieRelationsAsync(int idCategorie);
 
         Task<bool> GetCategorieExisteRecette(int id);
+        Task<bool> PostCategorieByIdRecetteAsync(int idRecette, int idCategorie);
 
 
         #endregion Methods specific to BookRepository

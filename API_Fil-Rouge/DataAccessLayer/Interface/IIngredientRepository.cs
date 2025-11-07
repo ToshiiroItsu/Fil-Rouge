@@ -28,7 +28,7 @@ namespace API_Fil_Rouge.DataAccessLayer.Interface
         /// Retrieves all ingredients of a specific recipe by its ID
         /// </summary>
         /// <returns></returns>
-        Task<List<Ingredient>> GetIngredientsWithQuantitiesOfRecetteIdAsync(int id);
+        Task<List<IngredientsRecette>> GetIngredientsWithQuantitiesOfRecetteIdAsync(int id);
 
         /// <summary>
         /// Add an ingredient to a recipe from the database.

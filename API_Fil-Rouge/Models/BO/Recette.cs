@@ -12,6 +12,6 @@
         public int nombrepersonne { get; set; }
         public string? image { get; set; }
         public IFormFile? imageFile { get; set; }
-        public int id_utilisateur { get; set; }
+        public int fk_utilisateur { get; set; }
     }
 }

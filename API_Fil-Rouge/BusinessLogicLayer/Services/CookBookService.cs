@@ -2,6 +2,7 @@
 using API_Fil_Rouge.DataAccessLayer.Session;
 using API_Fil_Rouge.DataAccessLayer.Unit_of_Work;
 using API_Fil_Rouge.Models.BO;
+using API_Fil_Rouge.Models.DTO.Sortie;
 
 namespace API_Fil_Rouge.BusinessLogicLayer.Services
 {
@@ -95,6 +96,9 @@ namespace API_Fil_Rouge.BusinessLogicLayer.Services
             return await _UoW.Categories.GetCategorieByIdAsync(id);
         }
 
+      
+
+
         /// <summary>
         /// Ajoute une nouvelle Catégorie.
         /// </summary>
@@ -126,18 +130,26 @@ namespace API_Fil_Rouge.BusinessLogicLayer.Services
         /// <returns>Vrai si la suppression a réussi, sinon faux.</returns>
         public async Task<bool> DeleteCategorieAsync(int id)
         {
+            _UoW.BeginTransaction();
 
             //vérifié que la categorie n'a pas de recette
+            bool HasRelation = await _UoW.Categories.GetCategorieExisteRecette(id);
 
-            if (!await _UoW.Categories.GetCategorieExisteRecette(id))
+            if (HasRelation)
             {
-                // Si oui je supprime la Catégorie
-                 return await _UoW.Categories.DeleteCategorieAsync(id);
+                _UoW.Rollback();
+                throw new InvalidOperationException("Impossible de supprimer la catégorie car elle est encore associée à des recettes.");
             }
-            else
-            {
-                return false;
-            }
+            // Supprimer la catégorie
+            var result = await _UoW.Categories.DeleteCategorieAsync(id);
+
+            // Valide la transaction si la suppression a réussi
+            if (result)
+                _UoW.Commit();
+            return result;
+
+
+
         }
 
         #endregion Gestion des Categories
@@ -154,6 +166,17 @@ namespace API_Fil_Rouge.BusinessLogicLayer.Services
         }
 
         /// <summary>
+        /// Ajoute une catégorie à une recette.
+        /// </summary>
+        /// <param name="idRecette">ID de la recette.</param>
+        /// <param name="idCategorie">ID de la catégorie à associer.</param>
+        /// <returns>Booléen indiquant si l'opération a réussi.</returns>
+        public async Task<bool> PostCategorieByIdRecetteAsync(int idRecette, int idCategorie)
+        {
+            return await _UoW.Categories.PostCategorieByIdRecetteAsync(idRecette, idCategorie);
+        }
+
+        /// <summary>
         /// Récupère la liste des Recettes associés à une Categorie.
         /// </summary>
         /// <returns>Liste des categories liés au recette.</returns>
@@ -161,6 +184,7 @@ namespace API_Fil_Rouge.BusinessLogicLayer.Services
         {
             return await _UoW.Recettes.GetRecetteByIdCategorieAsync(idCategorie);
         }
+
 
         /// <summary>
         /// Ajoute une relation entre une categorie et une recette.
@@ -225,7 +249,7 @@ namespace API_Fil_Rouge.BusinessLogicLayer.Services
 
 
 
-        public async Task<List<Ingredient>> GetIngredientsWithQuantitiesOfRecetteIdAsync(int id)
+        public async Task<List<IngredientsRecette>> GetIngredientsWithQuantitiesOfRecetteIdAsync(int id)
         {
             return await _UoW.Ingredients.GetIngredientsWithQuantitiesOfRecetteIdAsync(id);
         }

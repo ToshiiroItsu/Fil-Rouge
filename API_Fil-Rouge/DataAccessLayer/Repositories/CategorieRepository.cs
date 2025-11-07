@@ -8,6 +8,7 @@ namespace API_Fil_Rouge.DataAccessLayer.Repositories
 {
     public class CategorieRepository : ICategorieRepository
     {
+
         const string CATEGORIES_TABLE = "categories";
         const string CATEGORIES_RECETTES_TABLE = "categories_recettes";
         readonly IDBSession _dBSession;
@@ -28,6 +29,8 @@ namespace API_Fil_Rouge.DataAccessLayer.Repositories
             string query = $"SELECT * FROM {CATEGORIES_TABLE} WHERE id = @id";
             return await _dBSession.Connection.QuerySingleAsync<Categorie>(query, new { id }, transaction: _dBSession.Transaction);
         }
+
+    
 
         public async Task<Categorie> CreateCategorieAsync(Categorie categorie)
         {
@@ -53,9 +56,9 @@ namespace API_Fil_Rouge.DataAccessLayer.Repositories
             return result != 0;
         }
 
-    #endregion Gestion catégorie
+        #endregion Gestion catégorie
 
-    #region Methods specific de CategorieRepository
+        #region Methods specific de CategorieRepository
 
         public async Task<bool> AddCategorieRecetteRelationshipAsync(int idCategorie, int idRecette)
         {
@@ -66,11 +69,29 @@ namespace API_Fil_Rouge.DataAccessLayer.Repositories
 
         public async Task<IEnumerable<Categorie>> GetCategoriesByIdRecetteAsync(int idRecette)
         {
-            string query = $"SELECT c.* FROM {CATEGORIES_TABLE} c JOIN {CATEGORIES_RECETTES_TABLE} cr ON c.id = cr.fk_categorie WHERE cr.fk_recette = @idRecette";
-            return await _dBSession.Connection.QueryAsync<Categorie>(query, new { idRecette }, transaction: _dBSession.Transaction);
+            string query = $@"
+            SELECT c.*
+            FROM {CATEGORIES_TABLE} c
+            JOIN {CATEGORIES_RECETTES_TABLE} cr ON c.id = cr.fk_categorie
+            WHERE cr.fk_recette = @idRecette";
+
+            return await _dBSession.Connection.QueryAsync<Categorie>(
+                query,
+                new { idRecette },
+                transaction: _dBSession.Transaction
+            );
         }
 
-        
+
+        public async Task<bool> PostCategorieByIdRecetteAsync(int idCategorie, int idRecette)
+        {
+            string query = $"INSERT INTO {CATEGORIES_RECETTES_TABLE}(fk_categorie, fk_recette) VALUES(@idCategorie, @idRecette)";
+            int numLine = await _dBSession.Connection.ExecuteAsync(query, new { idCategorie, idRecette }, transaction: _dBSession.Transaction);
+            return numLine != 0;
+        }
+
+
+
         public async Task<bool> RemoveCategorieRecetteRelationshipAsync(int idCategorie, int idRecette)
         {
             string query = $"DELETE FROM {CATEGORIES_RECETTES_TABLE} WHERE fk_recette = @idRecette AND fk_categorie = @idCategorie";
@@ -83,11 +104,11 @@ namespace API_Fil_Rouge.DataAccessLayer.Repositories
             string query = $"DELETE FROM {CATEGORIES_RECETTES_TABLE} WHERE fk_categorie = @idCategorie";
             int numLine = await _dBSession.Connection.ExecuteAsync(query, new { idCategorie }, transaction: _dBSession.Transaction);
             return numLine != 0;
-        }              
+        }
 
         public async Task<bool> GetCategorieExisteRecette(int id)
         {
-            string query = $"SELECT count(*) FROM {CATEGORIES_RECETTES_TABLE} WHERE fk_categorie >= @id";
+            string query = $"SELECT count(*) FROM {CATEGORIES_RECETTES_TABLE} WHERE fk_categorie = @id";
             int result = await _dBSession.Connection.ExecuteScalarAsync<int>(query, new { id }, transaction: _dBSession.Transaction);
             return result != 0;
         }

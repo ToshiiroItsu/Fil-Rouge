@@ -3,11 +3,13 @@ using API_Fil_Rouge.Models.BO;
 using API_Fil_Rouge.Models.DTO.Entre;
 using API_Fil_Rouge.Models.DTO.Sortie;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API_Fil_Rouge.Controllers
 {
+    [Authorize(Policy = "UserOrAdmin")]
     [Route("api/[controller]")]
     [ApiController]
     public class RecettesController : ControllerBase
@@ -52,7 +54,7 @@ namespace API_Fil_Rouge.Controllers
                 cout = a.cout,
                 description = a.description,
                 nombrepersonne = a.nombrepersonne,
-                id_utilisateur = a.id_utilisateur
+                fk_utilisateur = a.fk_utilisateur
 
             });
             return Ok(response);
@@ -85,7 +87,7 @@ namespace API_Fil_Rouge.Controllers
                 cout = recette.cout,
                 description = recette.description,
                 nombrepersonne = recette.nombrepersonne,
-                id_utilisateur = recette.id_utilisateur
+                fk_utilisateur = recette.fk_utilisateur
             };
 
             return Ok(response);
@@ -99,6 +101,7 @@ namespace API_Fil_Rouge.Controllers
         /// <returns>
         /// La Recette créé, ou le code 400 en cas d'erreur.
         /// </returns>
+        [Authorize(Roles = "Administrateur")]
         [HttpPost()]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -116,7 +119,7 @@ namespace API_Fil_Rouge.Controllers
                 cout = request.cout,
                 description = request.description,
                 nombrepersonne = request.nombrepersonne,
-                id_utilisateur = request.id_utilisateur
+                fk_utilisateur = request.fk_utilisateur
             };
 
             var newRecette = await _cookbookService.CreateRecetteAsync(recette);
@@ -134,7 +137,7 @@ namespace API_Fil_Rouge.Controllers
                 cout = newRecette.cout,
                 description = newRecette.description,
                 nombrepersonne = newRecette.nombrepersonne,
-                id_utilisateur = newRecette.id_utilisateur
+                fk_utilisateur = newRecette.fk_utilisateur
             };
 
             return CreatedAtAction(nameof(GetRecetteById), new { id = response.id }, response);
@@ -149,6 +152,7 @@ namespace API_Fil_Rouge.Controllers
         /// <returns>
         /// La Recette mis à jour, ou le code 400 en cas d'erreur.
         /// </returns>
+        [Authorize(Roles = "Administrateur")]
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -166,7 +170,7 @@ namespace API_Fil_Rouge.Controllers
                 cout = request.cout,
                 description = request.description,
                 nombrepersonne = request.nombrepersonne,
-                id_utilisateur = request.id_utilisateur
+                fk_utilisateur = request.fk_utilisateur
 
             };
 
@@ -185,7 +189,7 @@ namespace API_Fil_Rouge.Controllers
                 cout = modifiedrecette.cout,
                 description = modifiedrecette.description,
                 nombrepersonne = modifiedrecette.nombrepersonne,
-                id_utilisateur = modifiedrecette.id_utilisateur
+                fk_utilisateur = modifiedrecette.fk_utilisateur
             };
 
             return Ok(response);
@@ -198,6 +202,7 @@ namespace API_Fil_Rouge.Controllers
         /// <returns>
         /// Un code 204 si la suppression a réussi, ou 404 si la Recette n'existe pas.
         /// </returns>
+        [Authorize(Roles = "Administrateur")]
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

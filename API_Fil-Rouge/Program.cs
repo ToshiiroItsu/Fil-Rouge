@@ -136,6 +136,13 @@ namespace API_Fil_Rouge
                 });
             });
 
+            // Configuration des politiques d'autorisation.
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("UserOrAdmin", policy =>
+                    policy.RequireRole("Utilisateur", "Administrateur")); // ceci = OR
+            });
+
             var app = builder.Build();
 
             // Middleware global de gestion des exceptions

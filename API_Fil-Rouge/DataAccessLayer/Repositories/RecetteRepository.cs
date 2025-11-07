@@ -2,6 +2,7 @@
 using API_Fil_Rouge.DataAccessLayer.Session;
 using API_Fil_Rouge.Models.BO;
 using Dapper;
+using Microsoft.AspNetCore.Mvc;
 
 namespace API_Fil_Rouge.DataAccessLayer.Repositories
 {
@@ -34,6 +35,7 @@ namespace API_Fil_Rouge.DataAccessLayer.Repositories
             string query = $"SELECT r.* FROM {RECETTES_TABLE} r JOIN {RECETTES_CATEGORIES_TABLE} rc ON r.id = rc.fk_recette WHERE rc.fk_categorie = @idCategorie";
             return await _dBSession.Connection.QueryAsync<Recette>(query, new { idCategorie }, transaction: _dBSession.Transaction);
         }
+
 
         public async Task<Recette> CreateRecetteAsync(Recette recette)
         {

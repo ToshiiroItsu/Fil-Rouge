@@ -1,4 +1,5 @@
 ﻿using API_Fil_Rouge.Models.BO;
+using API_Fil_Rouge.Models.DTO.Sortie;
 
 namespace API_Fil_Rouge.BusinessLogicLayer.Interfaces
 {
@@ -27,6 +28,7 @@ namespace API_Fil_Rouge.BusinessLogicLayer.Interfaces
     #region Gestion des relations entre Catégorie et Recette
 
         Task<IEnumerable<Categorie>> GetCategoriesByIdRecetteAsync(int idRecette);
+        Task<bool> PostCategorieByIdRecetteAsync(int idRecette, int idCategorie);
         Task<IEnumerable<Recette>> GetRecetteByIdCategorieAsync(int idCategorie);
         Task<bool> AddCategorieRecetteRelationshipAsync(int idCategorie, int idRecette);
         Task<bool> RemoveCategorieRecetteRelationshipAsync(int idCategorie, int idRecette);
@@ -42,7 +44,7 @@ namespace API_Fil_Rouge.BusinessLogicLayer.Interfaces
         Task<Ingredient> GetIngredientByIdAsync(int id);
         Task<Ingredient> CreateIngredientAsync(Ingredient ingredient);
         Task<bool> DeleteIngredientAsync(int id);
-        Task<List<Ingredient>> GetIngredientsWithQuantitiesOfRecetteIdAsync(int id);
+        Task<List<IngredientsRecette>> GetIngredientsWithQuantitiesOfRecetteIdAsync(int id);
         Task<int> AddIngredientToRecetteAsync(int id_recette, Ingredient ingredient);
         Task<bool> RemoveIngredientFromRecetteAsync(int id_recette, Ingredient ingredient);
 

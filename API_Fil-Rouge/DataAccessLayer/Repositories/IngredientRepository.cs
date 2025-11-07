@@ -10,6 +10,10 @@ namespace API_Fil_Rouge.DataAccessLayer.Repositories
         const string INGREDIENTS_TABLE = "ingredients";
         const string INGREDIENTS_RECETTES_TABLE = "ingredients_recettes";
         readonly IDBSession _dBSession;
+        public IngredientRepository(IDBSession session)
+        {
+            _dBSession = session;
+        }
 
         public async Task<List<Ingredient>> GetAllIngredientsAsync()
         {
@@ -39,10 +43,10 @@ namespace API_Fil_Rouge.DataAccessLayer.Repositories
             return result != 0;
         }
 
-        public async Task<List<Ingredient>> GetIngredientsWithQuantitiesOfRecetteIdAsync(int id)
+        public async Task<List<IngredientsRecette>> GetIngredientsWithQuantitiesOfRecetteIdAsync(int id)
         {
-            string query = $"SELECT {INGREDIENTS_TABLE} FROM {INGREDIENTS_RECETTES_TABLE} WHERE fk_recette = @id ";
-            return (await _dBSession.Connection.QueryAsync<Ingredient>(query, new { fk_recette = id }, transaction: _dBSession.Transaction)).ToList();
+            string query = $"SELECT * FROM {INGREDIENTS_RECETTES_TABLE} WHERE fk_recette = @fk_recette ";
+            return (await _dBSession.Connection.QueryAsync<IngredientsRecette>(query, new { fk_recette = id }, transaction: _dBSession.Transaction)).ToList();
         }
 
         public async Task<int> AddIngredientToRecetteAsync(int id_recette, Ingredient ingredient)

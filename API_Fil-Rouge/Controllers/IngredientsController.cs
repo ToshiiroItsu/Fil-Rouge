@@ -4,11 +4,13 @@ using API_Fil_Rouge.Models.BO;
 using API_Fil_Rouge.Models.DTO.Entre;
 using API_Fil_Rouge.Models.DTO.Sortie;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API_Fil_Rouge.Controllers
 {
+    [Authorize(Policy = "UserOrAdmin")]
     [Route("api/[controller]")]
     [ApiController]
     public class IngredientsController : ControllerBase
@@ -46,7 +48,7 @@ namespace API_Fil_Rouge.Controllers
             {
                 id = a.id,
                 nom = a.nom,
-                quantite = a.quantite
+                
 
             });
             return Ok(response);
@@ -73,7 +75,7 @@ namespace API_Fil_Rouge.Controllers
             {
                 id = ingredient.id,
                 nom = ingredient.nom,
-                quantite = ingredient.quantite
+                
             };
 
             return Ok(response);
@@ -87,6 +89,7 @@ namespace API_Fil_Rouge.Controllers
         /// <returns>
         /// L'Ingredient créé, ou le code 400 en cas d'erreur.
         /// </returns>
+        [Authorize(Roles = "Administrateur")]
         [HttpPost()]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -98,7 +101,7 @@ namespace API_Fil_Rouge.Controllers
             {
 
                 nom = request.nom,
-                quantite = request.quantite
+                
                 
             };
 
@@ -111,11 +114,31 @@ namespace API_Fil_Rouge.Controllers
             {
                 id = newIngredient.id,
                 nom = newIngredient.nom,
-                quantite = newIngredient.quantite
+                
 
             };
 
             return CreatedAtAction(nameof(GetIngredientById), new { id = response.id }, response);
+        }
+
+        [HttpGet("recette/{idRecette}/ingredients")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetIngredientsWithQuantitiesOfRecetteId([FromRoute] int idRecette)
+        {
+            var ingredients = await _cookbookService.GetIngredientsWithQuantitiesOfRecetteIdAsync(idRecette);
+
+            if (ingredients == null || !ingredients.Any())
+                return NotFound();
+
+            var response = ingredients.Select(i => new IngredientsRecetteDTO
+            {
+                fk_ingredient = i.fk_ingredient,
+                fk_recette = i.fk_recette,
+                quantite = i.quantite
+            });
+
+            return Ok(response);
         }
 
         ///// <summary>
@@ -163,6 +186,7 @@ namespace API_Fil_Rouge.Controllers
         /// <returns>
         /// Un code 204 si la suppression a réussi, ou 404 si l'Ingredient n'existe pas.
         /// </returns>
+        [Authorize(Roles = "Administrateur")]
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

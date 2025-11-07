@@ -16,6 +16,7 @@ namespace API_Fil_Rouge.Controllers
     /// Permet de récupérer, créer, modifier et supprimer des Catégories.
     /// Accessible aux administrateurs.
     /// </summary>
+    [Authorize(Policy = "UserOrAdmin")]
     [Route("api/[controller]")]
     [ApiController]
     public class CategoriesController : ControllerBase
@@ -85,6 +86,64 @@ namespace API_Fil_Rouge.Controllers
             return Ok(response);
         }
 
+
+        /// <summary>
+        /// Récupère une catégorie par son identifiant.
+        /// </summary>
+        /// <param name="id">Identifiant d'une catégorie.</param>
+        /// <returns>
+        /// La catégorie correspondant à l'identifiant, ou le code 404 si la catégorie n'existe pas.
+        /// </returns>
+        [HttpGet("recette/{idRecette}/categories")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async  Task<IActionResult> GetCategoriesByIdRecette([FromRoute] int idRecette)
+        {
+            var categories = await _cookbookService.GetCategoriesByIdRecetteAsync(idRecette);
+
+            if (categories == null || !categories.Any())
+                return NotFound();
+
+            var response = categories.Select(c => new CategorieDTO
+            {
+                id = c.id,
+                nom = c.nom,
+            });
+
+            return Ok(response);
+        }
+
+
+
+        [HttpPost("recette/{idRecette}/categories/{idCategorie}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> PostCategorieByIdRecette([FromRoute] int idRecette, [FromRoute] int idCategorie)
+        {
+            var result = await _cookbookService.PostCategorieByIdRecetteAsync(idCategorie, idRecette);
+
+            if (!result)
+                return BadRequest("Impossible d'ajouter cette catégorie à la recette.");
+
+            return Ok("Catégorie ajoutée avec succès.");
+        }
+
+
+        [HttpDelete("recette/{idRecette}/categories/{idCategorie}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> RemoveCategorieByIdRecette([FromRoute] int idRecette, [FromRoute] int idCategorie)
+        {
+            var result = await _cookbookService.RemoveCategorieRecetteRelationshipAsync(idCategorie, idRecette);
+
+            if (!result)
+                return BadRequest("Impossible de retirer cette catégorie de la recette.");
+
+            return Ok("Catégorie retirée avec succès.");
+        }
+
+
+
         /// <summary>
         /// Crée une nouvel catégorie.
         /// </summary>
@@ -93,6 +152,7 @@ namespace API_Fil_Rouge.Controllers
         /// <returns>
         /// La catégorie créé, ou le code 400 en cas d'erreur.
         /// </returns>
+        [Authorize(Roles = "Administrateur")]
         [HttpPost()]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -130,6 +190,7 @@ namespace API_Fil_Rouge.Controllers
         /// <returns>
         /// La catégorie mis à jour, ou le code 400 en cas d'erreur.
         /// </returns>
+        [Authorize(Roles = "Administrateur")]
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -166,6 +227,7 @@ namespace API_Fil_Rouge.Controllers
         /// <returns>
         /// Un code 204 si la suppression a réussi, ou 404 si la catégorie n'existe pas.
         /// </returns>
+        [Authorize(Roles = "Administrateur")]
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

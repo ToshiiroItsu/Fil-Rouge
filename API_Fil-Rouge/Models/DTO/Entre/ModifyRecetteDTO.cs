@@ -18,7 +18,7 @@ namespace API_Fil_Rouge.Models.DTO.Entre
         public string? description { get; set; }
         public int nombrepersonne { get; set; }
         public string? image { get; set; }
-        public int id_utilisateur { get; set; }
+        public int fk_utilisateur { get; set; }
     }
     /// <summary>
     /// Validateur FluentValidation pour <see cref="ModifyRecetteDTO"/>.
@@ -37,8 +37,7 @@ namespace API_Fil_Rouge.Models.DTO.Entre
             RuleFor(a => a.cout).NotNull().NotEmpty().WithMessage("Le cout de la recette est obligatoire.");
             RuleFor(a => a.description).NotNull().NotEmpty().WithMessage("La description de la recette est obligatoire.");
             RuleFor(a => a.nombrepersonne).NotNull().NotEmpty().WithMessage("Le nombre de personne est obligatoire.");
-            RuleFor(a => a.image).NotNull().NotEmpty().WithMessage("L'image de la recette est obligatoire.");
-            RuleFor(a => a.id_utilisateur).NotNull().NotEmpty().WithMessage("L'Id de l'utilisateur est obligatoire.");
+            RuleFor(a => a.fk_utilisateur).NotNull().NotEmpty().WithMessage("L'Id de l'utilisateur est obligatoire.");
         }
     }
 }
