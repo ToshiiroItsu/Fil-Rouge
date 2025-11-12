@@ -11,7 +11,7 @@ on:
   
 
 jobs:
-  container-job:
+  build:
     runs-on: ubuntu-latest
     services:
         postgres:
@@ -27,9 +27,6 @@ jobs:
                 --health-retries 5
             ports:
                 - 5435:5432
-  build:
-    runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET
