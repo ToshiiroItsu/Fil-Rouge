@@ -8,10 +8,26 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
+  
 
 jobs:
+  container-job:
+    runs-on: ubuntu-latest
+    services:
+        postgres:
+            image: postgres
+            env:
+                POSTGRES_PASSWORD: password
+                POSTGRES_USER: postgres
+                POSTGRES_DB: Japanese_Foods_Tests
+            options: >-
+                --health-cmd pg_isready
+                --health-interval 10s
+                --health-timeout 5s
+                --health-retries 5
+            ports:
+                - 5435:5432
   build:
-
     runs-on: ubuntu-latest
 
     steps:
